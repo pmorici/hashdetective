@@ -3,8 +3,8 @@ from django.db import models
 class Manufacturer(models.Model):
     """NSRL Manufacturer model this maps to the NSRLMfg.txt file"""
     mfg_id = models.AutoField(primary_key=True)
-    mfg_code = models.CharField(max_length=32, unique=True)
-    mfg_name = models.CharField(max_length=128)
+    mfg_code = models.CharField(max_length=15, unique=True)
+    mfg_name = models.CharField(max_length=150)
 
     def __unicode__(self):
         return self.mfg_name
@@ -12,9 +12,9 @@ class Manufacturer(models.Model):
 class OperatingSystem(models.Model):
     """NSRL Operating System model this maps to the NSRLOS.txt file"""
     os_id = models.AutoField(primary_key=True)
-    os_code = models.CharField(max_length=32, unique=True)
-    os_name = models.CharField(max_length=128)
-    os_version = models.CharField(max_length=32)
+    os_code = models.CharField(max_length=15, unique=True)
+    os_name = models.CharField(max_length=150)
+    os_version = models.CharField(max_length=15)
     mfg_id = models.ForeignKey(Manufacturer, to_field='mfg_id',
                                related_name='+')
     mfg_code = models.ForeignKey(Manufacturer, to_field='mfg_code',
@@ -27,10 +27,10 @@ class Product(models.Model):
     """NSRL Product model this maps to the NSRLProd.txt file"""
     prod_id = models.AutoField(primary_key=True)
     prod_code = models.PositiveIntegerField()
-    prod_name = models.CharField(max_length=128)
-    prod_version = models.CharField(max_length=32)
-    prod_lang = models.CharField(max_length=32)
-    prod_app_type = models.CharField(max_length=64)
+    prod_name = models.CharField(max_length=150)
+    prod_version = models.CharField(max_length=15)
+    prod_lang = models.CharField(max_length=150)
+    prod_app_type = models.CharField(max_length=50)
     os_id = models.ForeignKey(OperatingSystem, to_field='os_id',
                               related_name='+')
     mfg_id = models.ForeignKey(Manufacturer, to_field='mfg_id',
@@ -53,7 +53,7 @@ class File(models.Model):
     file_crc32 = models.CharField(max_length=8)
     file_name = models.CharField(max_length=256)
     file_size = models.PositiveIntegerField()
-    file_spec_code = models.CharField(max_length=32)
+    file_spec_code = models.CharField(max_length=1)
     prod_id = models.ForeignKey(Product, to_field='prod_id', related_name='+')
     os_id = models.ForeignKey(OperatingSystem, to_field='os_id',
                               related_name='+')

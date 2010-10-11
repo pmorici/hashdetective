@@ -11,6 +11,28 @@ import os.path
 from django.db.utils import IntegrityError
 from hashlookup.models import Manufacturer, OperatingSystem, Product, File
 
+def test_encoding(s, enc):
+    """Test the given encoding"""
+    try:
+        s.decode(enc)
+    except UnicodeDecodeError, e:
+        return False
+    except LookupError, e:
+        return False
+    return True
+
+def get_encoding(s):
+    """Check that this string is utf-8, if it isn't ask user"""
+    if test_encoding(s, 'utf-8'):
+        return 'utf-8'
+    while(True):
+        enc = raw_input('Unknown Encoding: "%s"\n-->' % s)
+        if test_encoding(s, enc):
+            return enc
+
+def normalize_encoding(s):
+    return s.decode(get_encoding(s))
+
 def mfg_import(base_path, mfg_data=u'NSRLMfg.txt'):
     """Read the CSV file and import the manufacturer data"""
     nsrl_mfg = csv.DictReader(open(os.path.join(base_path, mfg_data), 'rb'))
@@ -76,7 +98,7 @@ def file_import(base_path, file_data=u'NSRLFile.txt'):
                     f = File(file_sha1=file['SHA-1'],
                              file_md5=file['MD5'],
                              file_crc32=file['CRC32'],
-                             file_name=file['FileName'],
+                             file_name=normalize_encoding(file['FileName']),
                              file_size=file['FileSize'],
                              file_spec_code=file['SpecialCode'],
                              prod_id=p,
@@ -85,8 +107,8 @@ def file_import(base_path, file_data=u'NSRLFile.txt'):
                     f.save()
                 except IntegrityError, e:
                     print "Duplicate File:", f
-        except Excpetion, e:
-            print e
+        except IntegrityError, e:
+            print type(e)
 
 if __name__ == "__main__":
     base_dir = sys.argv[1]
