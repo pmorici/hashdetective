@@ -1,13 +1,13 @@
 #!/usr/bin/env python
+from django.core.management import setup_environ
+import settings
+setup_environ(settings)
 import sys
 import os
-sys.path.append('/home/pmorici/src/hashdetective/hashdetective')
-sys.path.append('/home/pmorici/src/hashdetective')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'hashdetective.settings'
-
 import csv
 import settings
 import os.path
+from django.db import transaction
 from django.db.utils import IntegrityError
 from hashlookup.models import Manufacturer, OperatingSystem, Product, File
 
@@ -33,6 +33,7 @@ def get_encoding(s):
 def normalize_encoding(s):
     return s.decode(get_encoding(s))
 
+@transaction.commit_on_success
 def mfg_import(base_path, mfg_data=u'NSRLMfg.txt'):
     """Read the CSV file and import the manufacturer data"""
     nsrl_mfg = csv.DictReader(open(os.path.join(base_path, mfg_data), 'rb'))
@@ -43,6 +44,7 @@ def mfg_import(base_path, mfg_data=u'NSRLMfg.txt'):
         except IntegrityError, e:
             print "Duplicate Manufacturer:", m
 
+@transaction.commit_on_success
 def os_import(base_path, os_data=u'NSRLOS.txt'):
     """Read the CSV file and import the operating system data"""
     nsrl_os = csv.DictReader(open(os.path.join(base_path, os_data), 'rb'))
@@ -58,6 +60,7 @@ def os_import(base_path, os_data=u'NSRLOS.txt'):
         except IntegrityError, e:
             print "Duplicate OS:", o
 
+@transaction.commit_on_success
 def prod_import(base_path, prod_data=u'NSRLProd.txt'):
     """Read the CSV file and import the operating system data"""
     nsrl_prod = csv.DictReader(open(os.path.join(base_path, prod_data), 'rb'))
@@ -76,6 +79,7 @@ def prod_import(base_path, prod_data=u'NSRLProd.txt'):
         except IntegrityError, e:
             print "Duplicate Product:", p
 
+@transaction.commit_on_success
 def file_import(base_path, file_data=u'NSRLFile.txt'):
     """Read the CSV file and import the file data"""
     nsrl_file = csv.DictReader(open(os.path.join(base_path, file_data), 'rb'))
