@@ -25,6 +25,8 @@ def get_encoding(s):
     """Check that this string is utf-8, if it isn't ask user"""
     if test_encoding(s, 'utf-8'):
         return 'utf-8'
+    if test_encoding(s, 'latin_1'):
+    	return 'latin_1'
     while(True):
         enc = raw_input('Unknown Encoding: "%s"\n-->' % s)
         if test_encoding(s, enc):
