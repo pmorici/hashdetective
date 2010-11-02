@@ -81,11 +81,11 @@ def prod_import(base_path, prod_data=u'NSRLProd.txt'):
         except IntegrityError, e:
             print "Duplicate Product:", p
 
-@transaction.commit_on_success
+@transaction.commit_manually
 def file_import(base_path, file_data=u'NSRLFile.txt'):
     """Read the CSV file and import the file data"""
     nsrl_file = csv.DictReader(open(os.path.join(base_path, file_data), 'rb'))
-    for file in nsrl_file:
+    for ln, file in enumerate(nsrl_file):
         try:
             prod = Product.objects.filter(prod_code=file['ProductCode'],
                                           os_code=file['OpSystemCode'])
@@ -111,6 +111,8 @@ def file_import(base_path, file_data=u'NSRLFile.txt'):
                              os_id=osc,
                              os_code=osc)
                     f.save()
+                    if ln % 1000:
+                        transaction.commit()
                 except IntegrityError, e:
                     print "Duplicate File:", f
         except IntegrityError, e:
